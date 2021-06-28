@@ -1,10 +1,7 @@
 const express = require('express');
 const app = express();
-//const userRoutes = require("./routes/userRoutes.routes")
+const userRoutes = require("./routes/usersRoutes.routes")
 
-app.get('/',(req,res)=>{
-    //res.status(201).send("<h1>Home Page - Get request<\h1>"); 
-    res.sendFile("home.html", {root: "./views"});
-});
+app.use(userRoutes);
 
 module.exports = app;
