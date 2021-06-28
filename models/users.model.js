@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const userSchema = new mongoose.Schema({
     username:{
         type: String,
+        unique: true,
         required: true
     },
     gender:{
@@ -20,4 +21,4 @@ const userSchema = new mongoose.Schema({
     }
 });
 
-module.exports = mongoose.model('users', UserSchema);
+module.exports = mongoose.model('users', userSchema);

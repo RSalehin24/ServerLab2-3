@@ -8,8 +8,8 @@ router.use(bodyParser.json());
 
 
 router.get("/register", getRegister); 
-//router.post("/register", isLoggedIn,postRegister);
-//router.get("/login",getLogin);
-//router.get("/dashboard", getDashBoard);
+router.post("/register", postRegister);
+router.get("/login",getLogin);
+
 
 module.exports = router; 
