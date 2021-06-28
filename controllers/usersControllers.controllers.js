@@ -1,6 +1,11 @@
 const Users = require("./../models/users.model");
 const bcrypt = require("bcryptjs");
+const alert = require('alert');
+var LocalStorage = require('node-localstorage').LocalStorage;
+localStorage = new LocalStorage('./scratch');
 
+const isLoggedIn = (req, res) => {
+}
 
 const getRegister = (req, res) => {
     res.sendFile("register.html", {root:"./views"});
@@ -8,16 +13,17 @@ const getRegister = (req, res) => {
 
 const postRegister = (req, res) => {
 
-    const { username, gender, email, password, repeatPassword } = req.body;
+    const { name, gender, email, password, repeatPassword } = req.body;
 
-    if(password == repeatPassword && password.length >6){
+    if(password == repeatPassword && password.length > 6){
         Users.findOne({ email: email }).exec(async (error, user) => {
             
             if (user) {
-              return res.redirect("/register");
+                alert('User already axists');
+                return res.redirect("/login");
             } else {
                 const newUser = new Users({
-                    username,
+                    name,
                     gender,
                     email,
                     password,
@@ -25,9 +31,9 @@ const postRegister = (req, res) => {
               
                   bcrypt.genSalt(10, (err, salt) => {
                     bcrypt.hash(newUser.password, salt, (err, hash) => {
-                      if (err){ return res.status(400).json({
-                              message: "User already registered",
-                          });
+                      if (err){ 
+                          alert('User already axists');
+                          return res.redirect("/login");
                       }
                           newUser.password = hash;
                           newUser
@@ -35,9 +41,13 @@ const postRegister = (req, res) => {
                               .catch((err) => console.log(err));
                       });
                   });
+                alert('User has been added Successfully. Please login using your credentials.');
                 res.redirect('/login');
             }
         }); 
+    } else {
+        alert('Password and Retype Password does not match');
+        res.redirect('/login');
     }
 };
   
@@ -57,7 +67,8 @@ const postLogin = (req, res) =>{
         if (user) {
           bcrypt.compare(req.body.password, user.password).then((isMatch) => {
             if (isMatch) {
-              return res.send(`Welcome, ${user.username}!`);
+                localStorage.setItem('name', user.name)
+              return res.redirect('/dashboard');
             } else {
               return res.redirect('/login');
             }
@@ -68,4 +79,16 @@ const postLogin = (req, res) =>{
       });
 };
 
-module.exports = {getRegister, postRegister, getLogin, postLogin};
+const getDashboard = (req, res) => {
+    const user = localStorage.getItem("name");
+    
+    if (user){
+        res.send(`Welcome, ${user}!`);
+        next()
+    }else {
+        alert('Please log in first');
+        res.redirect('/login');
+    }
+}
+
+module.exports = {getRegister, postRegister, getLogin, postLogin, getDashboard};
