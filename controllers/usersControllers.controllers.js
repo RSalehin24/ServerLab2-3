@@ -43,7 +43,7 @@ const postRegister = (req, res) => {
   
 
 const getLogin = (req, res) => {
-
+    res.sendFile("login.html", {root:"./views"});
 }
 
 
@@ -57,7 +57,7 @@ const postLogin = (req, res) =>{
         if (user) {
           bcrypt.compare(req.body.password, user.password).then((isMatch) => {
             if (isMatch) {
-              return res.redirect(`Welcome, ${user.username}!`);
+              return res.send(`Welcome, ${user.username}!`);
             } else {
               return res.redirect('/login');
             }
