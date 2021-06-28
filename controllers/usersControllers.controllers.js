@@ -4,8 +4,6 @@ const alert = require('alert');
 var LocalStorage = require('node-localstorage').LocalStorage;
 localStorage = new LocalStorage('./scratch');
 
-const isLoggedIn = (req, res) => {
-}
 
 const getRegister = (req, res) => {
     res.sendFile("register.html", {root:"./views"});
@@ -15,11 +13,11 @@ const postRegister = (req, res) => {
 
     const { name, gender, email, password, repeatPassword } = req.body;
 
-    if(password == repeatPassword && password.length > 6){
+    if(password == repeatPassword && password.length > 5){
         Users.findOne({ email: email }).exec(async (error, user) => {
             
             if (user) {
-                alert('User already axists');
+                alert('User already axists. Please login using your credentials.');
                 return res.redirect("/login");
             } else {
                 const newUser = new Users({
@@ -32,8 +30,8 @@ const postRegister = (req, res) => {
                   bcrypt.genSalt(10, (err, salt) => {
                     bcrypt.hash(newUser.password, salt, (err, hash) => {
                       if (err){ 
-                          alert('User already axists');
-                          return res.redirect("/login");
+                          alert('Error! Please try again.');
+                          return res.redirect("/register");
                       }
                           newUser.password = hash;
                           newUser
@@ -46,8 +44,8 @@ const postRegister = (req, res) => {
             }
         }); 
     } else {
-        alert('Password and Retype Password does not match');
-        res.redirect('/login');
+        alert('Password and Retype Password does not match. Please enter info again.');
+        res.redirect('/register');
     }
 };
   
@@ -67,14 +65,16 @@ const postLogin = (req, res) =>{
         if (user) {
           bcrypt.compare(req.body.password, user.password).then((isMatch) => {
             if (isMatch) {
-                localStorage.setItem('name', user.name)
+              localStorage.setItem('name', user.name)
               return res.redirect('/dashboard');
             } else {
+              alert('Password does not match. Please try again.');  
               return res.redirect('/login');
             }
           });
         } else {
-            return res.redirect('/login');
+            alert("User doesn't exist. Please register first."); 
+            return res.redirect('/register');
         }
       });
 };
@@ -84,7 +84,7 @@ const getDashboard = (req, res) => {
     
     if (user){
         res.send(`Welcome, ${user}!`);
-        next()
+        localStorage.removeItem("name");
     }else {
         alert('Please log in first');
         res.redirect('/login');
